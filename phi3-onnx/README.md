@@ -2,6 +2,8 @@
 
 POC for running Phi-3 model with ONNX in a docker container.
 
+> To use Phi-3.5, search for `Or Phi-3.5` in the code and follow the instructions.
+
 ## Build Backend
 
 ```bash
