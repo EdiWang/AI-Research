@@ -8,12 +8,15 @@ namespace Edi.Phi3OnnxApi.Controllers;
 [Route("[controller]")]
 public class Phi3Controller : Controller
 {
+    private readonly ILogger<Phi3Controller> _logger;
     private static Model _model;
     private readonly Tokenizer _tokenizer;
     private static string _defaultSystemPrompt;
 
-    public Phi3Controller(IConfiguration configuration)
+    public Phi3Controller(IConfiguration configuration, ILogger<Phi3Controller> logger)
     {
+        _logger = logger;
+
         _defaultSystemPrompt = configuration["DefaultSystemPrompt"];
         _model = new Model(configuration["ModelPath"]);
         _tokenizer = new Tokenizer(_model);
@@ -22,8 +25,11 @@ public class Phi3Controller : Controller
     [HttpPost("chat/completions")]
     public async Task ChatCompletions([FromBody] ChatCompletionRequest request)
     {
+        var userPropmpt = request.Messages.FirstOrDefault(p => p.Role == "user")?.Content;
+        _logger.LogInformation($"User Prompt: {userPropmpt}");
+
         var fullPrompt = $"<|system|>{_defaultSystemPrompt}<|end|>" +
-                         $"<|user|>{request.Messages.FirstOrDefault(p => p.Role == "user")?.Content}<|end|>" +
+                         $"<|user|>{userPropmpt}<|end|>" +
                          $"<|assistant|>";
 
         Response.ContentType = "text/plain";
