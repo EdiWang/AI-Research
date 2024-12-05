@@ -8,9 +8,7 @@ import onnxruntime_genai as og
 app = FastAPI()
 
 # Load the ONNX model
-model_path = "/app/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4"
-# Or Phi-3.5
-# model_path = "/app/cpu_and_mobile/cpu-int4-awq-block-128-acc-level-4"
+model_path = "/app/cpu_and_mobile/cpu-int4-awq-block-128-acc-level-4"
 model = og.Model(model_path)
 
 # Load the tokenizer from onnxruntime_genai
