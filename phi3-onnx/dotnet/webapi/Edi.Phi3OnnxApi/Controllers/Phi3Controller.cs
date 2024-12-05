@@ -9,12 +9,15 @@ namespace Edi.Phi3OnnxApi.Controllers;
 public class Phi3Controller : Controller
 {
     private readonly ILogger<Phi3Controller> _logger;
+    private readonly IConfiguration _configuration;
+
     private static Model _model;
     private readonly Tokenizer _tokenizer;
     private static string _defaultSystemPrompt;
 
     public Phi3Controller(IConfiguration configuration, ILogger<Phi3Controller> logger)
     {
+        _configuration = configuration;
         _logger = logger;
 
         _defaultSystemPrompt = configuration["DefaultSystemPrompt"];
@@ -57,8 +60,8 @@ public class Phi3Controller : Controller
         var tokens = _tokenizer.Encode(fullPrompt);
 
         var generatorParams = new GeneratorParams(_model);
-        generatorParams.SetSearchOption("max_length", 2048);
-        generatorParams.SetSearchOption("past_present_share_buffer", false);
+        generatorParams.SetSearchOption("max_length", int.Parse(_configuration["GeneratorParams:max_length"]!));
+        generatorParams.SetSearchOption("past_present_share_buffer", bool.Parse(_configuration["GeneratorParams:past_present_share_buffer"]!));
         generatorParams.SetInputSequences(tokens);
 
         var generator = new Generator(_model, generatorParams);
@@ -72,8 +75,11 @@ public class Phi3Controller : Controller
             {
                 break;
             }
+
             yield return output;
         }
+
+        await Task.CompletedTask;
     }
 
     private string GetOutputTokens(Generator generator, Tokenizer tokenizer)
