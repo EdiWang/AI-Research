@@ -1,5 +1,7 @@
 # Phi-3 with ONNX
 
+POC for running Phi-3 model with ONNX in a docker container.
+
 ## Build Backend
 
 ```bash
@@ -15,9 +17,23 @@ huggingface-cli download microsoft/Phi-3-mini-4k-instruct-onnx --include cpu_and
 docker build -t phi3-onnx-backend .
 ```
 
-## Run Backend
+## Build Frontend
+
+Please change the `API_URL` in `frontend/app.py` to the correct backend URL.
 
 ```bash
-docker run -p 8000:8000 phi3-onnx-backend
+cd frontend
+docker build -t phi3-onnx-frontend .
 ```
 
+## Run in the same network
+
+Change the `API_URL` in `frontend/app.py` to `http://phi3-onnx-backend:8000/predict`.
+
+```bash
+docker network create phi3-onnx
+docker run --network phi3-onnx --name phi3-onnx-backend -p 8000:8000 phi3-onnx-backend
+docker run --network phi3-onnx --name phi3-onnx-frontend -p 5000:5000 phi3-onnx-frontend
+```
+
+[Reference](https://azure.github.io/AppService/2024/08/19/Phi-3-ONNX.html)
