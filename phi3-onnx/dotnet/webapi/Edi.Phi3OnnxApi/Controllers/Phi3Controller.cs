@@ -64,7 +64,7 @@ public class Phi3Controller : Controller
             {
                 break;
             }
-            yield return output; // Yield each token as it's generated
+            yield return output;
         }
     }
 
