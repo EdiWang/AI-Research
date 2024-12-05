@@ -7,21 +7,21 @@ namespace Edi.Phi3OnnxApi.Controllers;
 [Route("[controller]")]
 public class Phi3Controller : Controller
 {
-    private static Model _model = null;
-    private readonly Tokenizer _tokenizer = null;
-    private static readonly string DefaultSystemPrompt = "You are an AI assistant that helps people find information. Answer questions using a direct style. Do not share more information that the requested by the users.";
+    private static Model _model;
+    private readonly Tokenizer _tokenizer;
+    private static string _defaultSystemPrompt;
 
-    public Phi3Controller()
+    public Phi3Controller(IConfiguration configuration)
     {
-        var modelPath = @"E:\Workspace\phi-35-test\model\cpu_and_mobile\cpu-int4-awq-block-128-acc-level-4";
-        _model = new Model(modelPath);
+        _defaultSystemPrompt = configuration["DefaultSystemPrompt"];
+        _model = new Model(configuration["ModelPath"]);
         _tokenizer = new Tokenizer(_model);
     }
 
-    [HttpPost("generate-response")]
-    public async Task GenerateResponse([FromBody] string userPrompt)
+    [HttpPost("chat/completions")]
+    public async Task ChatCompletions([FromBody] string userPrompt)
     {
-        var fullPrompt = $"<|system|>{DefaultSystemPrompt}<|end|><|user|>{userPrompt}<|end|><|assistant|>";
+        var fullPrompt = $"<|system|>{_defaultSystemPrompt}<|end|><|user|>{userPrompt}<|end|><|assistant|>";
 
         Response.ContentType = "text/plain";
         await foreach (var token in GenerateAiResponse(fullPrompt))
@@ -31,7 +31,7 @@ public class Phi3Controller : Controller
                 break;
             }
             await Response.WriteAsync(token);
-            await Response.Body.FlushAsync(); // Flush the response stream to send the token immediately
+            await Response.Body.FlushAsync();
         }
     }
 
