@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Edi.Phi3OnnxApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.ML.OnnxRuntimeGenAI;
 
 namespace Edi.Phi3OnnxApi.Controllers;
@@ -19,9 +20,11 @@ public class Phi3Controller : Controller
     }
 
     [HttpPost("chat/completions")]
-    public async Task ChatCompletions([FromBody] string userPrompt)
+    public async Task ChatCompletions([FromBody] ChatCompletionRequest request)
     {
-        var fullPrompt = $"<|system|>{_defaultSystemPrompt}<|end|><|user|>{userPrompt}<|end|><|assistant|>";
+        var fullPrompt = $"<|system|>{_defaultSystemPrompt}<|end|>" +
+                         $"<|user|>{request.Messages.FirstOrDefault(p => p.Role == "user")?.Content}<|end|>" +
+                         $"<|assistant|>";
 
         Response.ContentType = "text/plain";
         await foreach (var token in GenerateAiResponse(fullPrompt))
