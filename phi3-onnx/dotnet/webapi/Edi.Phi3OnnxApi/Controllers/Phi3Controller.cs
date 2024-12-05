@@ -88,6 +88,9 @@ public class Phi3Controller : Controller
         var outputTokens = generator.GetSequence(0);
         var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
 
+        // Workaround bug where every response ends with invalid character
+        if (newToken[0] == 32007) return string.Empty;
+
         var token = tokenizer.Decode(newToken);
         return token;
     }
