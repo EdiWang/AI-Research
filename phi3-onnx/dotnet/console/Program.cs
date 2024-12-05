@@ -9,6 +9,7 @@ internal class Program
         var modelPath = @"E:\Workspace\phi-35-test\model\cpu_and_mobile\cpu-int4-awq-block-128-acc-level-4";
         var model = new Model(modelPath);
         var tokenizer = new Tokenizer(model);
+        var tokenizerStream = tokenizer.CreateStream();
 
         var systemPrompt = "You are an AI assistant that helps people find information. Answer questions using a direct style. Do not share more information that the requested by the users.";
 
@@ -44,12 +45,16 @@ internal class Program
                 generator.ComputeLogits();
                 generator.GenerateNextToken();
                 var outputTokens = generator.GetSequence(0);
-                var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
 
-                // Workaround bug where every response ends with invalid character
-                if (newToken[0] == 32007) continue;
+                var newToken = outputTokens[^1];
+                var output = tokenizerStream.Decode(newToken);
 
-                var output = tokenizer.Decode(newToken);
+                //var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
+
+                //// Workaround bug where every response ends with invalid character
+                //if (newToken[0] == 32007) continue;
+
+                //var output = tokenizer.Decode(newToken);
                 Console.Write(output);
             }
             Console.WriteLine();
