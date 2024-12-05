@@ -22,8 +22,8 @@ public class Phi3Controller : Controller
         _tokenizer = new Tokenizer(_model);
     }
 
-    [HttpPost("chat/completions")]
-    public async Task ChatCompletions([FromBody] ChatCompletionRequest request)
+    [HttpPost("generate-response")]
+    public async Task GenerateResponse([FromBody] ChatRequest request)
     {
         var userPropmpt = request.Messages.FirstOrDefault(p => p.Role == "user")?.Content;
         _logger.LogInformation($"User Prompt: {userPropmpt}");

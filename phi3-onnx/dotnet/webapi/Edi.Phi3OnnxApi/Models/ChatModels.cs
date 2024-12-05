@@ -2,7 +2,7 @@
 
 namespace Edi.Phi3OnnxApi.Models;
 
-public class ChatCompletionRequest
+public class ChatRequest
 {
     [Required]
     public Message[] Messages { get; set; }
