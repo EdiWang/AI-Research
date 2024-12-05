@@ -45,6 +45,10 @@ internal class Program
                 generator.GenerateNextToken();
                 var outputTokens = generator.GetSequence(0);
                 var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
+
+                // Workaround bug where every response ends with invalid character
+                if (newToken[0] == 32007) continue;
+
                 var output = tokenizer.Decode(newToken);
                 Console.Write(output);
             }
