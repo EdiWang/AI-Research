@@ -70,6 +70,7 @@ public class Phi3Controller : Controller
         {
             generator.ComputeLogits();
             generator.GenerateNextToken();
+
             var output = GetOutputTokens(generator, _tokenizer);
             if (string.IsNullOrEmpty(output))
             {
@@ -86,6 +87,8 @@ public class Phi3Controller : Controller
     {
         var outputTokens = generator.GetSequence(0);
         var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
-        return tokenizer.Decode(newToken);
+
+        var token = tokenizer.Decode(newToken);
+        return token;
     }
 }
