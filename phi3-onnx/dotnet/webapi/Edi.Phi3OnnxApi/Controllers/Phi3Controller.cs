@@ -13,6 +13,7 @@ public class Phi3Controller : Controller
 
     private static Model _model;
     private readonly Tokenizer _tokenizer;
+    private readonly TokenizerStream _tokenizerStream;
     private static string _defaultSystemPrompt;
 
     public Phi3Controller(IConfiguration configuration, ILogger<Phi3Controller> logger)
@@ -23,6 +24,7 @@ public class Phi3Controller : Controller
         _defaultSystemPrompt = configuration["DefaultSystemPrompt"];
         _model = new Model(configuration["ModelPath"]);
         _tokenizer = new Tokenizer(_model);
+        _tokenizerStream = _tokenizer.CreateStream();
     }
 
     [HttpPost("generate-response")]
@@ -86,12 +88,9 @@ public class Phi3Controller : Controller
     private string GetOutputTokens(Generator generator, Tokenizer tokenizer)
     {
         var outputTokens = generator.GetSequence(0);
-        var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
+        var newToken = outputTokens[^1];
+        var token = _tokenizerStream.Decode(newToken);
 
-        // Workaround bug where every response ends with invalid character
-        if (newToken[0] == 32007) return string.Empty;
-
-        var token = tokenizer.Decode(newToken);
         return token;
     }
 }
