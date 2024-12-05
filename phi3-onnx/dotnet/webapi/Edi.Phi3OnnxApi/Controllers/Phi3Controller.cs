@@ -25,10 +25,18 @@ public class Phi3Controller : Controller
     [HttpPost("generate-response")]
     public async Task GenerateResponse([FromBody] ChatRequest request)
     {
+        var requestSystemPrompt = request.Messages.FirstOrDefault(p => p.Role == "system")?.Content;
+        var systemPrompt = requestSystemPrompt ?? _defaultSystemPrompt;
         var userPropmpt = request.Messages.FirstOrDefault(p => p.Role == "user")?.Content;
+
+        if (requestSystemPrompt != null)
+        {
+            _logger.LogInformation($"Requested System Prompt: {requestSystemPrompt}");
+        }
+
         _logger.LogInformation($"User Prompt: {userPropmpt}");
 
-        var fullPrompt = $"<|system|>{_defaultSystemPrompt}<|end|>" +
+        var fullPrompt = $"<|system|>{systemPrompt}<|end|>" +
                          $"<|user|>{userPropmpt}<|end|>" +
                          $"<|assistant|>";
 
