@@ -21,6 +21,8 @@ WORKDIR /app
 
 # Step 6: Copy the entire directory containing the ONNX model and its data files
 COPY ./cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4 /app/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4
+# Or Phi-3.5
+# COPY ./cpu_and_mobile/cpu-int4-awq-block-128-acc-level-4 /app/cpu_and_mobile/cpu-int4-awq-block-128-acc-level-4
 
 # Step 7: Copy the API script into the container
 COPY ./model_api.py /app/
