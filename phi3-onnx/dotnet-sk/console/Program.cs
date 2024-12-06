@@ -42,7 +42,7 @@ internal class Program
                 response += message.Content;
             }
             history.AddAssistantMessage(response);
-            Console.WriteLine("");
+            Console.WriteLine(Environment.NewLine);
 
             var key = Console.ReadKey();
             if (key.Key == ConsoleKey.Escape)
