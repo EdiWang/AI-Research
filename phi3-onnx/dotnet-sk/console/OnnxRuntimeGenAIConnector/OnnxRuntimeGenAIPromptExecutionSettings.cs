@@ -46,7 +46,7 @@ public sealed class OnnxRuntimeGenAIPromptExecutionSettings : PromptExecutionSet
     public int MinLength { get; set; } = 0;
 
     [JsonPropertyName("max_length")]
-    public int MaxLength { get; set; } = 200;
+    public int MaxLength { get; set; } = 4096;
 
     [JsonPropertyName("length_penalty")]
     public float LengthPenalty { get; set; } = 1;

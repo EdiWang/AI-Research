@@ -14,6 +14,8 @@ internal class Program
         builder.AddOnnxRuntimeGenAIChatCompletion(modelPath: modelPath);
         var kernel = builder.Build();
 
+        var systemPrompt = "You are an AI assistant that helps people find information. Answer questions using a direct style. Do not share more information that the requested by the users.";
+
         // create chat
         var chat = kernel.GetRequiredService<IChatCompletionService>();
         var history = new ChatHistory();
@@ -27,6 +29,8 @@ internal class Program
             {
                 break;
             }
+
+            history.AddSystemMessage(systemPrompt);
             history.AddUserMessage(userQ);
 
             Console.Write($"Phi3: ");
@@ -39,6 +43,12 @@ internal class Program
             }
             history.AddAssistantMessage(response);
             Console.WriteLine("");
+
+            var key = Console.ReadKey();
+            if (key.Key == ConsoleKey.Escape)
+            {
+                break;
+            }
         }
     }
 }
