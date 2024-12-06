@@ -1,6 +1,6 @@
 ﻿using Microsoft.ML.OnnxRuntimeGenAI;
 
-namespace ConsoleApp1;
+namespace Phi3OnnxConsole;
 
 internal class Program
 {
