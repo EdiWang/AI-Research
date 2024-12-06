@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Microsoft.SemanticKernel;
@@ -23,8 +22,7 @@ public static class OnnxRuntimeGenAIKernelBuilderExtensions
     {
         builder.Services.AddKeyedSingleton<IChatCompletionService>(serviceId, (serviceProvider, _) =>
             new OnnxRuntimeGenAIChatCompletionService(
-                modelPath: modelPath,
-                loggerFactory: serviceProvider.GetService<ILoggerFactory>()));
+                modelPath: modelPath));
 
         return builder;
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.ML.OnnxRuntimeGenAI;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Services;
@@ -21,21 +21,23 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
     /// Initializes a new instance of the OnnxRuntimeGenAIChatCompletionService class.
     /// </summary>
     /// <param name="modelPath">The generative AI ONNX model path for the chat completion service.</param>
-    /// <param name="loggerFactory">Optional logger factory to be used for logging.</param>
     public OnnxRuntimeGenAIChatCompletionService(
-        string modelPath,
-        ILoggerFactory? loggerFactory = null)
+        string modelPath)
     {
         _model = new Model(modelPath);
         _tokenizer = new Tokenizer(_model);
         _tokenizerStream = _tokenizer.CreateStream();
 
-        this.AttributesInternal.Add(AIServiceExtensions.ModelIdKey, _tokenizer);
+        AttributesInternal.Add(AIServiceExtensions.ModelIdKey, _tokenizer);
     }
 
-    public IReadOnlyDictionary<string, object?> Attributes => this.AttributesInternal;
+    public IReadOnlyDictionary<string, object?> Attributes => AttributesInternal;
 
-    public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
+        ChatHistory chatHistory,
+        PromptExecutionSettings? executionSettings = null,
+        Kernel? kernel = null,
+        CancellationToken cancellationToken = default)
     {
         var result = new StringBuilder();
 
@@ -52,7 +54,11 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         };
     }
 
-    public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(
+        ChatHistory chatHistory,
+        PromptExecutionSettings? executionSettings = null,
+        Kernel? kernel = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await foreach (var content in RunInferenceAsync(chatHistory, executionSettings, cancellationToken))
         {
@@ -60,7 +66,10 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         }
     }
 
-    private async IAsyncEnumerable<string> RunInferenceAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings, CancellationToken cancellationToken)
+    private async IAsyncEnumerable<string> RunInferenceAsync(
+        ChatHistory chatHistory,
+        PromptExecutionSettings? executionSettings,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         OnnxRuntimeGenAIPromptExecutionSettings settings = OnnxRuntimeGenAIPromptExecutionSettings.FromExecutionSettings(executionSettings);
 
