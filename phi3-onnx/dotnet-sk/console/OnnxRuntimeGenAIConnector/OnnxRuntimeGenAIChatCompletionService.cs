@@ -13,6 +13,7 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
 {
     private readonly Model _model;
     private readonly Tokenizer _tokenizer;
+    private readonly TokenizerStream _tokenizerStream;
 
     private Dictionary<string, object?> AttributesInternal { get; } = new();
 
@@ -27,6 +28,7 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
     {
         _model = new Model(modelPath);
         _tokenizer = new Tokenizer(_model);
+        _tokenizerStream = _tokenizer.CreateStream();
 
         this.AttributesInternal.Add(AIServiceExtensions.ModelIdKey, _tokenizer);
     }
@@ -81,8 +83,14 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
                 generator.GenerateNextToken();
 
                 var outputTokens = generator.GetSequence(0);
-                var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
-                var output = _tokenizer.Decode(newToken);
+
+                // Fix garbage ending token
+                var newToken = outputTokens[^1];
+                var output = _tokenizerStream.Decode(newToken);
+
+                //var newToken = outputTokens.Slice(outputTokens.Length - 1, 1);
+                //var output = _tokenizer.Decode(newToken);
+
                 return output;
             }, cancellationToken);
         }
