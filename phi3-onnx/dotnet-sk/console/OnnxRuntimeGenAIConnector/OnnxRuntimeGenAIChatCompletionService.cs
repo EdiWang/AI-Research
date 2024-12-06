@@ -31,10 +31,8 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         this.AttributesInternal.Add(AIServiceExtensions.ModelIdKey, _tokenizer);
     }
 
-    /// <inheritdoc />
     public IReadOnlyDictionary<string, object?> Attributes => this.AttributesInternal;
 
-    /// <inheritdoc />
     public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
         var result = new StringBuilder();
@@ -52,7 +50,6 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         };
     }
 
-    /// <inheritdoc />
     public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
         await foreach (var content in RunInferenceAsync(chatHistory, executionSettings, cancellationToken))
@@ -63,13 +60,13 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
 
     private async IAsyncEnumerable<string> RunInferenceAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings, CancellationToken cancellationToken)
     {
-        OnnxRuntimeGenAIPromptExecutionSettings onnxRuntimeGenAIPromptExecutionSettings = OnnxRuntimeGenAIPromptExecutionSettings.FromExecutionSettings(executionSettings);
+        OnnxRuntimeGenAIPromptExecutionSettings settings = OnnxRuntimeGenAIPromptExecutionSettings.FromExecutionSettings(executionSettings);
 
-        var prompt = GetPrompt(chatHistory, onnxRuntimeGenAIPromptExecutionSettings);
+        var prompt = GetPrompt(chatHistory);
         var tokens = _tokenizer.Encode(prompt);
 
         var generatorParams = new GeneratorParams(_model);
-        ApplyPromptExecutionSettings(generatorParams, onnxRuntimeGenAIPromptExecutionSettings);
+        ApplyPromptExecutionSettings(generatorParams, settings);
         generatorParams.SetInputSequences(tokens);
 
         var generator = new Generator(_model, generatorParams);
@@ -91,7 +88,7 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         }
     }
 
-    private string GetPrompt(ChatHistory chatHistory, OnnxRuntimeGenAIPromptExecutionSettings onnxRuntimeGenAIPromptExecutionSettings)
+    private string GetPrompt(ChatHistory chatHistory)
     {
         var promptBuilder = new StringBuilder();
         foreach (var message in chatHistory)
@@ -103,20 +100,20 @@ public sealed class OnnxRuntimeGenAIChatCompletionService : IChatCompletionServi
         return promptBuilder.ToString();
     }
 
-    private void ApplyPromptExecutionSettings(GeneratorParams generatorParams, OnnxRuntimeGenAIPromptExecutionSettings onnxRuntimeGenAIPromptExecutionSettings)
+    private void ApplyPromptExecutionSettings(GeneratorParams generatorParams, OnnxRuntimeGenAIPromptExecutionSettings settings)
     {
-        generatorParams.SetSearchOption("top_p", onnxRuntimeGenAIPromptExecutionSettings.TopP);
-        generatorParams.SetSearchOption("top_k", onnxRuntimeGenAIPromptExecutionSettings.TopK);
-        generatorParams.SetSearchOption("temperature", onnxRuntimeGenAIPromptExecutionSettings.Temperature);
-        generatorParams.SetSearchOption("repetition_penalty", onnxRuntimeGenAIPromptExecutionSettings.RepetitionPenalty);
-        generatorParams.SetSearchOption("past_present_share_buffer", onnxRuntimeGenAIPromptExecutionSettings.PastPresentShareBuffer);
-        generatorParams.SetSearchOption("num_return_sequences", onnxRuntimeGenAIPromptExecutionSettings.NumReturnSequences);
-        generatorParams.SetSearchOption("no_repeat_ngram_size", onnxRuntimeGenAIPromptExecutionSettings.NoRepeatNgramSize);
-        generatorParams.SetSearchOption("min_length", onnxRuntimeGenAIPromptExecutionSettings.MinLength);
-        generatorParams.SetSearchOption("max_length", onnxRuntimeGenAIPromptExecutionSettings.MaxLength);
-        generatorParams.SetSearchOption("length_penalty", onnxRuntimeGenAIPromptExecutionSettings.LengthPenalty);
-        generatorParams.SetSearchOption("early_stopping", onnxRuntimeGenAIPromptExecutionSettings.EarlyStopping);
-        generatorParams.SetSearchOption("do_sample", onnxRuntimeGenAIPromptExecutionSettings.DoSample);
-        generatorParams.SetSearchOption("diversity_penalty", onnxRuntimeGenAIPromptExecutionSettings.DiversityPenalty);
+        generatorParams.SetSearchOption("top_p", settings.TopP);
+        generatorParams.SetSearchOption("top_k", settings.TopK);
+        generatorParams.SetSearchOption("temperature", settings.Temperature);
+        generatorParams.SetSearchOption("repetition_penalty", settings.RepetitionPenalty);
+        generatorParams.SetSearchOption("past_present_share_buffer", settings.PastPresentShareBuffer);
+        generatorParams.SetSearchOption("num_return_sequences", settings.NumReturnSequences);
+        generatorParams.SetSearchOption("no_repeat_ngram_size", settings.NoRepeatNgramSize);
+        generatorParams.SetSearchOption("min_length", settings.MinLength);
+        generatorParams.SetSearchOption("max_length", settings.MaxLength);
+        generatorParams.SetSearchOption("length_penalty", settings.LengthPenalty);
+        generatorParams.SetSearchOption("early_stopping", settings.EarlyStopping);
+        generatorParams.SetSearchOption("do_sample", settings.DoSample);
+        generatorParams.SetSearchOption("diversity_penalty", settings.DiversityPenalty);
     }
 }
